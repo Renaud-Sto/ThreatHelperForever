@@ -1,0 +1,17 @@
+# Runs the offline tests and luacheck on every push to main and every pull request.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install LuaJIT and luacheck
+        run: sudo apt-get update && sudo apt-get install -y luajit lua-check
+      - name: Tests and static analysis
+        run: sh tests/check.sh

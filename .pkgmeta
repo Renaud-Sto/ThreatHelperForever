@@ -1,0 +1,3 @@
+# BigWigs packager settings. Not shipped in the zip.
+# The repo keeps the addon in a subfolder: run the packager with -t ThreatHelperForever.
+package-as: ThreatHelperForever
