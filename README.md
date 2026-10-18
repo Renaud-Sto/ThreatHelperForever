@@ -1,6 +1,7 @@
 # ThreatHelper Forever
 
-Threat tracker for tanks on **WoW Forever** (Interface 16001), built for the protection warrior.
+Threat tracker for tanks on **WoW Forever** (Interface 16001): warrior, paladin, druid in bear
+form, any class that holds aggro.
 It tells you, before it happens, that you are about to lose a mob, with a UI that looks like
 the game's own.
 
@@ -63,7 +64,7 @@ License: MIT (the code only; no Blizzard art is shipped).
 
 ## En français
 
-Suivi de menace pour tank sur WoW Forever, pensé pour le guerrier protection. Il prévient
+Suivi de menace pour tous les tanks sur WoW Forever (guerrier, paladin, druide en forme d'ours…). Il prévient
 avant que tu perdes un monstre.
 
 - **Ta prise sur chaque monstre** : un pourcentage à côté de la barre de nom de chaque monstre

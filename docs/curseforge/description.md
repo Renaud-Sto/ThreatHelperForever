@@ -1,4 +1,4 @@
-ThreatHelper Forever tells a tank, before it happens, that a mob is about to slip away. Built for the protection warrior on WoW Forever, with a UI that looks like the game's own.
+ThreatHelper Forever tells a tank, before it happens, that a mob is about to slip away. Built for every tank on WoW Forever (warrior, paladin, druid in bear form...), with a UI that looks like the game's own.
 
 **Features**
 
