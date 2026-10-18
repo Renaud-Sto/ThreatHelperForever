@@ -15,6 +15,10 @@ def main():
     with open(toc_path, encoding="utf-8") as f:
         toc = f.read().splitlines()
     files = [line.strip() for line in toc if line.strip() and not line.startswith("#")]
+    # Textures the code loads by path (not listed in the TOC).
+    media = os.path.join(ADDON, "Media")
+    if os.path.isdir(media):
+        files += sorted("Media/" + n for n in os.listdir(media))
     version = [line.split(":", 1)[1].strip() for line in toc if line.startswith("## Version")][0]
 
     os.makedirs("dist", exist_ok=True)

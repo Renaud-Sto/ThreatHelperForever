@@ -12,8 +12,11 @@ ns.Minimap = Minimap_
 Minimap_.NAME = "ThreatHelperForeverMinimapButton"
 Minimap_.SIZE, Minimap_.LEVEL = 31, 8
 Minimap_.DEFAULT_ANGLE = 200
-Minimap_.ICON = "Interface\\Icons\\Ability_Warrior_DefensiveStance"
-Minimap_.ICON_FALLBACK = "Interface\\Icons\\INV_Misc_QuestionMark"
+-- The addon's own icon (Media/icon.tga, 64x64, made by tools/make_icon.ps1 from the
+-- artwork renaud generated, 2026-10-18). A file shipped by the addon has no game file id,
+-- so it is used as is; the game icon stays as a fallback for a client that cannot load it.
+Minimap_.ICON = "Interface\\AddOns\\ThreatHelperForever\\Media\\icon"
+Minimap_.ICON_FALLBACK = "Interface\\Icons\\Ability_Warrior_DefensiveStance"
 local BORDER = "Interface\\Minimap\\MiniMap-TrackingBorder"
 local BACKGROUND = "Interface\\Minimap\\UI-Minimap-Background"
 local HIGHLIGHT = "Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight"
@@ -62,14 +65,8 @@ local function place(angle)
     button:SetPoint("CENTER", m, "CENTER", x, y)
 end
 
--- The icon when the client serves the file, else the question mark (a guessed missing
--- path draws a green square).
 function Minimap_.iconPath()
-    if type(_G.GetFileIDFromPath) == "function" then
-        local ok, id = pcall(_G.GetFileIDFromPath, Minimap_.ICON)
-        if ok and id then return Minimap_.ICON end
-    end
-    return Minimap_.ICON_FALLBACK
+    return Minimap_.ICON
 end
 
 local function cursorAngle()
@@ -149,8 +146,8 @@ function Minimap_.create()
 
     local bg = texture("BACKGROUND", BACKGROUND, 24, 24)
     bg:SetPoint("CENTER", button, "CENTER", 0, 1)
-    local icon = texture("ARTWORK", Minimap_.iconPath(), 18, 18)
-    icon:SetTexCoord(0.05, 0.95, 0.05, 0.95)
+    local icon = texture("ARTWORK", Minimap_.iconPath(), 20, 20)
+    if not pcall(icon.SetTexture, icon, Minimap_.iconPath()) then icon:SetTexture(Minimap_.ICON_FALLBACK) end
     icon:SetPoint("CENTER", button, "CENTER", 0, 1)
     local border = texture("OVERLAY", BORDER, 50, 50)
     border:SetPoint("TOPLEFT", button, "TOPLEFT", 0, 0)

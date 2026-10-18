@@ -4,7 +4,7 @@
 ## Notes-frFR: Suivi de menace pour tank : prévient avant de perdre l'aggro.
 ## Author: renaud
 ## Version: 1.0.0
-## IconTexture: Interface\Icons\Ability_Warrior_DefensiveStance
+## IconTexture: Interface\AddOns\ThreatHelperForever\Media\icon
 ## AddonCompartmentFunc: ThreatHelperForever_OnCompartmentClick
 ## SavedVariables: ThreatHelperForeverDB, ThreatHelperForeverLog
 ## X-Website: https://github.com/Renaud-Sto/ThreatHelperForever
