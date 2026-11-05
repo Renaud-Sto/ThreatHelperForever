@@ -40,6 +40,7 @@ function W.frame(kind, name, parent, template)
         SetSize = function(self, w, h) self.width, self.height = w, h end,
         SetWidth = function(self, w) self.width = w end,
         SetHeight = function(self, h) self.height = h end,
+        SetAlpha = function(self, a) self.alpha = a end,
         GetWidth = function(self) return self.width or 0 end,
         GetHeight = function(self) return self.height or 0 end,
         SetChecked = function(self, v) self.checked = v and true or false end,

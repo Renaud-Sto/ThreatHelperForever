@@ -245,8 +245,50 @@ H.test("plate all: the target's plate agrees with the bar, a secret plate shows 
     for _, p in ipairs(T.ns.UI.plates) do
         if p.frame.shown then texts[#texts + 1] = rawget(p.text, "text") end
     end
-    H.eq(texts, { "51%" })
+    table.sort(texts)
+    H.eq(texts, { "51%", "OK" })                         -- the other held mob: live state only
     H.eq(rawget(T.ns.UI.pct, "text"), "51%")
+end)
+
+-- Multi-aggro (2026-11-05): a mob seen through target keeps its real number on its plate,
+-- dimmed, after the player switches target, then falls back on "OK".
+H.test("plate all: a mob keeps its last real percentage, dimmed, after a target switch", function()
+    local world = { combat = true, target = true, status = 3, members = {} }
+    local T = boot(world)
+    local env = T.env
+    local SECRET = setmetatable({}, {})
+    env.issecretvalue = function(v) return v == SECRET end
+    local frames = { nameplate1 = W.frame("Frame"), nameplate2 = W.frame("Frame") }
+    local targetIs = "nameplate1"
+    env.C_NamePlate = { GetNamePlateForUnit = function(u) return frames[u] end }
+    env.UnitExists = function(u) return u == "target" or frames[u] ~= nil end
+    env.UnitCanAttack = function(_, u) return u == "target" or frames[u] ~= nil end
+    env.UnitIsUnit = function(a, b) return a == b or (a == targetIs and b == "target") end
+    env.UnitGUID = function(u)
+        if u == "target" then return "Creature-" .. targetIs end
+        return frames[u] and "Creature-" .. u
+    end
+    env.UnitThreatSituation = function() return 3 end
+    env.UnitThreatPercentageOfLead = function(_, mob)
+        if mob ~= "target" then return SECRET end
+        return targetIs == "nameplate1" and 185 or 1000
+    end
+    T.fire("ADDON_LOADED", H.ADDON)
+    targetIs = "nameplate2"
+    T.fire("PLAYER_TARGET_CHANGED"); T.run()
+    local byFrame = {}
+    for _, p in ipairs(T.ns.UI.plates) do
+        if p.frame.shown then byFrame[#byFrame + 1] = rawget(p.text, "text") .. "@" .. tostring(rawget(p.frame, "alpha") or 1) end
+    end
+    table.sort(byFrame)
+    H.eq(byFrame, { "51%@" .. T.ns.UI.STALE_ALPHA, "91%@1" })
+    -- Six seconds later the memory is gone: the old target shows its live state.
+    T.clock = T.clock + 7
+    T.ns.Main.update()
+    local texts = {}
+    for _, p in ipairs(T.ns.UI.plates) do if p.frame.shown then texts[#texts + 1] = rawget(p.text, "text") end end
+    table.sort(texts)
+    H.eq(texts, { "91%", "OK" })
 end)
 
 H.test("/aggro test shows every level on the nameplates on screen, then gives the display back", function()

@@ -16,6 +16,8 @@ ns.Locale.register("frFR", {
     ALERT_danger_nodata = "DANGER : l'aggro glisse !",
     ALERT_lost = "AGGRO PERDUE : PROVOCATION !",
     ALERT_lost_holder = "AGGRO PERDUE sur %s : PROVOCATION !",
+    PLATE_OK = "OK",
+    PLATE_ALERT = "!",
     OUTSIDE = "hors groupe",
     SOMEONE = "quelqu'un",
     HELP = "commandes : /aggro [options] | show | hide | lock | unlock | warn <pct> | danger <pct> | sound on|off | log on|off|clear | plate all|target|off|x <n>|y <n> | list on|off | minimap | test | probe | reset",

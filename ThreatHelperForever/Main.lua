@@ -60,6 +60,7 @@ function Main.init()
     ns.Log.endFight(Main.log, GetTime())     -- a /reload in combat leaves a fight open
     ns.Locale.select(GetLocale())
     Main.alertState = {}
+    Main.known = {}
     Main.applyColors()
     ns.UI.build(s)
     ns.List.build(s)
@@ -148,6 +149,7 @@ function Main.update()
     local snap = ns.Adapter.read()
     local result = ns.Threat.evaluate(snap, Main.db.settings)
     Main.last = result
+    Main.rememberHolds(snap, result)
     ns.UI.render(result, snap.looseMobs)
     Main.renderPlates(result, snap)
     Main.renderList(snap.active and result or nil)
@@ -170,6 +172,15 @@ function Main.journal(snap, result)
     ns.Log.sample(Main.log, GetTime(), sample)
 end
 
+-- Keeps the last real hold of the target and of the mouseover / focus mobs (Threat.remember).
+function Main.rememberHolds(snap, result)
+    local now = GetTime()
+    if snap.active then ns.Threat.remember(Main.known, ns.Adapter.guid("target"), result, now) end
+    for _, m in ipairs(ns.Adapter.extraMobs()) do
+        ns.Threat.remember(Main.known, m.guid, ns.Threat.evaluate(m.snap, Main.db.settings), now)
+    end
+end
+
 -- One percentage per nameplate: every mob in combat with the player, or the target only.
 function Main.renderPlates(result, snap)
     local s = Main.db.settings
@@ -182,6 +193,7 @@ function Main.renderPlates(result, snap)
             entries[#entries + 1] = {
                 result = useTarget and result or ns.Threat.evaluate(m.snap, s),
                 myScaled = (useTarget and snap.me or m.snap.me or {}).scaled, plate = m.plate,
+                known = not useTarget and ns.Threat.recall(Main.known, m.guid, GetTime()) or nil,
             }
         end
     elseif s.plate then
@@ -197,6 +209,7 @@ function Main.renderList(target)
     for _, row in ipairs(rows) do
         -- Same as the plates: the target row takes the bar's reading (readable values).
         row.result = (row.isTarget and target) or ns.Threat.evaluate(row.snap, s)
+        row.known = not row.isTarget and ns.Threat.recall(Main.known, row.guid, GetTime()) or nil
     end
     ns.List.render(ns.List.sort(rows), s)
 end
@@ -225,6 +238,7 @@ local UPDATE_EVENTS = {
     UNIT_THREAT_LIST_UPDATE = true, UNIT_THREAT_SITUATION_UPDATE = true,
     PLAYER_TARGET_CHANGED = true, GROUP_ROSTER_UPDATE = true,
     NAME_PLATE_UNIT_ADDED = true, NAME_PLATE_UNIT_REMOVED = true,
+    UPDATE_MOUSEOVER_UNIT = true, PLAYER_FOCUS_CHANGED = true,
 }
 
 function Main.onEvent(event, arg1, arg2)
@@ -252,6 +266,7 @@ function Main.onEvent(event, arg1, arg2)
         Main.startTicker()
         Main.requestUpdate()
     elseif event == "PLAYER_REGEN_ENABLED" then
+        Main.known = {}
         Main.stopTicker()
         Main.update()
         ns.Log.endFight(Main.log, GetTime())
@@ -397,7 +412,7 @@ for _, event in ipairs({
     "ADDON_LOADED", "ADDON_ACTION_BLOCKED", "ADDON_ACTION_FORBIDDEN", "MACRO_ACTION_BLOCKED", "MACRO_ACTION_FORBIDDEN",
     "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED", "PLAYER_TARGET_CHANGED", "GROUP_ROSTER_UPDATE",
     "UNIT_THREAT_LIST_UPDATE", "UNIT_THREAT_SITUATION_UPDATE",
-    "NAME_PLATE_UNIT_ADDED", "NAME_PLATE_UNIT_REMOVED",
+    "NAME_PLATE_UNIT_ADDED", "NAME_PLATE_UNIT_REMOVED", "UPDATE_MOUSEOVER_UNIT", "PLAYER_FOCUS_CHANGED",
 }) do
     pcall(frame.RegisterEvent, frame, event)
 end

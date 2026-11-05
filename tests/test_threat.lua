@@ -122,3 +122,29 @@ H.test("a held mob with secret values has no percentage, a lone tank (pctLead 0)
     H.eq(T.hold(T.evaluate({ active = true, status = 3, pctLead = 0 })), 100)
     H.eq(T.hold(T.evaluate({ active = true, status = 1, me = {} })), 0)
 end)
+
+-- 2026-11-05 multi-aggro: off the target only the states are readable. Each plate shows the
+-- live state, or the last real percentage seen on that mob (target, mouseover) for a while.
+H.test("plate label: lost 0 %, measured hold, insecure '!', held 'OK', nothing when idle", function()
+    H.eq(T.plateLabel({ level = "lost" }), { kind = "pct", value = 0, level = "lost" })
+    H.eq(T.plateLabel({ level = "warn", top = { scaled = 80 }, measured = true }), { kind = "pct", value = 20, level = "warn" })
+    H.eq(T.plateLabel({ level = "danger" }), { kind = "alert", level = "danger" })
+    H.eq(T.plateLabel({ level = "safe" }), { kind = "ok", level = "safe" })
+    H.eq(T.plateLabel({ level = "untouched" }), nil)
+    H.eq(T.plateLabel({ level = "idle" }), nil)
+end)
+
+H.test("plate label: the last real percentage of a held mob, dimmed, until it ages out", function()
+    local store = {}
+    T.remember(store, "Creature-1", { level = "warn", top = { scaled = 80 }, measured = true }, 10)
+    T.remember(store, "Creature-2", { level = "safe" }, 10)           -- unmeasured: not kept
+    H.eq(store["Creature-2"], nil)
+    local held = { level = "safe" }
+    H.eq(T.plateLabel(held, T.recall(store, "Creature-1", 14)), { kind = "pct", value = 20, level = "warn", stale = true })
+    H.eq(T.plateLabel(held, T.recall(store, "Creature-1", 17)), { kind = "ok", level = "safe" })   -- too old
+    -- Live states win over the memory: lost and insecure are shown as they are now.
+    local known = T.recall(store, "Creature-1", 12)
+    H.eq(T.plateLabel({ level = "lost" }, known), { kind = "pct", value = 0, level = "lost" })
+    H.eq(T.plateLabel({ level = "danger" }, known), { kind = "alert", level = "danger" })
+    H.eq(T.recall(store, nil, 12), nil)
+end)

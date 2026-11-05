@@ -120,6 +120,26 @@ function Adapter.read()
     return snap
 end
 
+function Adapter.guid(unit)
+    return text((call("UnitGUID", unit)))
+end
+
+-- Extra mobs read through tokens where threat values may be readable (mouseover, focus):
+-- { { unit, guid, snap }, ... }, the target excluded. Used to remember each mob's last hold.
+Adapter.EXTRA_TOKENS = { "mouseover", "focus" }
+function Adapter.extraMobs()
+    local list = {}
+    if not bool(call("UnitAffectingCombat", "player")) then return list end
+    local withMembers = not bool(call("IsInRaid"))
+    for _, unit in ipairs(Adapter.EXTRA_TOKENS) do
+        if hostileTarget(unit) and not bool(call("UnitIsUnit", unit, "target")) then
+            local guid = Adapter.guid(unit)
+            if guid then list[#list + 1] = { unit = unit, guid = guid, snap = Adapter.readMob(unit, withMembers) } end
+        end
+    end
+    return list
+end
+
 local function plateFor(unit)
     if type(C_NamePlate) ~= "table" or type(C_NamePlate.GetNamePlateForUnit) ~= "function" then return nil end
     local ok, plate = pcall(C_NamePlate.GetNamePlateForUnit, unit)
@@ -140,6 +160,7 @@ function Adapter.listRows()
                 unit = unit,
                 name = text((call("UnitName", unit))),
                 isTarget = bool(call("UnitIsUnit", unit, "target")) == true,
+                guid = Adapter.guid(unit),
                 snap = Adapter.readMob(unit, withMembers),
             }
         end
@@ -172,7 +193,7 @@ function Adapter.plates()
             local plate = plateFor(unit)
             if plate then
                 list[#list + 1] = { unit = unit, plate = plate, snap = Adapter.readMob(unit, withMembers),
-                    isTarget = bool(call("UnitIsUnit", unit, "target")) == true }
+                    isTarget = bool(call("UnitIsUnit", unit, "target")) == true, guid = Adapter.guid(unit) }
             end
         end
     end
@@ -238,6 +259,12 @@ function Adapter.rawSample(mob, nested)
         if bool(call("UnitExists", mobTarget)) then
             local res = read("UnitName", mobTarget)
             sample.mobTarget = (res[1] == "MISSING" or res[1] == "ERR") and res[1] or enc(res[2], isSecret)
+        end
+        -- Are the values readable through mouseover and focus, like through target? (OPEN)
+        for _, unit in ipairs(Adapter.EXTRA_TOKENS) do
+            if hostileTarget(unit) and not bool(call("UnitIsUnit", unit, mob)) then
+                sample[unit] = Adapter.rawSample(unit, true)
+            end
         end
         for i = 1, 40 do
             local unit = "nameplate" .. i

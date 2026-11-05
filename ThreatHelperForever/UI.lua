@@ -289,10 +289,19 @@ function UI.relativeScale(anchor)
     return a / u
 end
 
--- Draws one percentage; plateFrame: a nameplate from C_NamePlate.GetNamePlateForUnit, or nil.
-function UI.drawPlate(p, result, _, plateFrame, settings)
-    local value = UI.plateValue(result)
-    if not settings.plate or type(plateFrame) ~= "table" or value == nil then
+-- The text of a plate label (Threat.plateLabel): "42%", "!" or "OK".
+function UI.labelText(label)
+    if label.kind == "pct" then return string.format("%d%%", math.floor(label.value + 0.5)) end
+    if label.kind == "alert" then return L.PLATE_ALERT end
+    return L.PLATE_OK
+end
+UI.STALE_ALPHA = 0.55
+
+-- Draws one label; plateFrame: a nameplate from C_NamePlate.GetNamePlateForUnit, or nil.
+-- known: the mob's last real hold (Threat.recall), for plates whose values are secret.
+function UI.drawPlate(p, result, _, plateFrame, settings, known)
+    local label = ns.Threat.plateLabel(result, known)
+    if not settings.plate or type(plateFrame) ~= "table" or label == nil then
         p.frame:Hide()
         return
     end
@@ -307,16 +316,17 @@ function UI.drawPlate(p, result, _, plateFrame, settings)
         p.frame:Hide()
         return
     end
-    local c = UI.COLORS[result.level] or UI.COLORS.unknown
-    p.text:SetText(string.format("%d%%", math.floor(value + 0.5)))
+    local c = UI.COLORS[label.level] or UI.COLORS.unknown
+    p.text:SetText(UI.labelText(label))
     p.text:SetTextColor(c[1], c[2], c[3])
+    p.frame:SetAlpha(label.stale and UI.STALE_ALPHA or 1)
     p.frame:Show()
 end
 
 -- entries: { { result, myScaled, plate }, ... }; extra pooled frames are hidden.
 function UI.renderPlates(entries, settings)
     for i, e in ipairs(entries) do
-        UI.drawPlate(UI.plates[i] or UI.buildPlate(), e.result, e.myScaled, e.plate, settings)
+        UI.drawPlate(UI.plates[i] or UI.buildPlate(), e.result, e.myScaled, e.plate, settings, e.known)
     end
     for i = #entries + 1, #UI.plates do UI.plates[i].frame:Hide() end
 end

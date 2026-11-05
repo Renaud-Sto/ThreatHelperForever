@@ -140,10 +140,12 @@ function List.render(rows, settings)
         local data = rows[i]
         if data then
             local result = data.result or { level = "untouched" }
-            local hold = ns.Threat.hold(result)
-            local c = U.COLORS[result.level] or U.COLORS.unknown
+            -- Same label as the plate: live number, last real number (dimmed), "!" or "OK".
+            local label = ns.Threat.plateLabel(result, data.known)
+            local hold = label and label.kind == "pct" and label.value or nil
+            local c = U.COLORS[label and label.level or result.level] or U.COLORS.unknown
             r.name:SetText(data.name or "?")
-            r.pct:SetText(hold and string.format("%d%%", math.floor(hold + 0.5)) or "")
+            r.pct:SetText(label and U.labelText(label) or "")
             r.pct:SetTextColor(1, 1, 1)         -- white over the coloured fill (green on green was unreadable)
             -- Held but unmeasured (secret values off the target): full row, no number.
             local held = result.level == "safe" or result.level == "warn" or result.level == "danger"
@@ -154,7 +156,7 @@ function List.render(rows, settings)
             r.fill:SetVertexColor(c[1], c[2], c[3])
             r.fill:SetShown(share > 0)
             r.border:SetShown(data.isTarget == true)
-            r.face:SetAlpha((hold or held) and 1 or 0.5)
+            r.face:SetAlpha((label and label.stale) and U.STALE_ALPHA or ((hold or held) and 1 or 0.5))
             r.face:Show()
         else
             r.face:Hide()

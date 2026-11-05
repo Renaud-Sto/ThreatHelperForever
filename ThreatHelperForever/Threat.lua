@@ -141,6 +141,48 @@ function Threat.hold(result)
     return nil
 end
 
+-- Last real hold seen on each mob (through "target" or "mouseover", where the values are
+-- readable), by GUID: { [guid] = { hold, level, at } }. Plates of other mobs only get the
+-- states (journal 2026-11-05), so the last number fills in for a few seconds.
+Threat.MEMORY_SECONDS = 6
+
+function Threat.remember(store, guid, result, now)
+    if type(store) ~= "table" or type(guid) ~= "string" then return end
+    local hold = Threat.hold(result)
+    if hold == nil or result.level == "lost" then
+        store[guid] = nil
+        return
+    end
+    store[guid] = { hold = hold, level = result.level, at = now }
+end
+
+function Threat.recall(store, guid, now, maxAge)
+    if type(store) ~= "table" or type(guid) ~= "string" then return nil end
+    local k = store[guid]
+    if not k then return nil end
+    if now - k.at > (maxAge or Threat.MEMORY_SECONDS) then
+        store[guid] = nil
+        return nil
+    end
+    return k
+end
+
+-- What a plate (or a list row) shows: a percentage { kind = "pct", value, level, stale },
+-- the insecure alert { kind = "alert" }, a live "held" mark { kind = "ok" }, or nil.
+-- Live losses and insecure states win over a remembered number.
+function Threat.plateLabel(result, known)
+    local level = result and result.level
+    local hold = Threat.hold(result)
+    if level == "lost" then return { kind = "pct", value = 0, level = level } end
+    if hold ~= nil then return { kind = "pct", value = hold, level = level } end
+    if level == "danger" then return { kind = "alert", level = level } end
+    if level == "safe" or level == "warn" then
+        if known then return { kind = "pct", value = known.hold, level = known.level, stale = true } end
+        return { kind = "ok", level = level }
+    end
+    return nil
+end
+
 -- Alert or not on a change of level. state = { level, at = { [level] = time } } is kept by
 -- the caller. An alert fires when the level gets worse than before (warn, danger, lost),
 -- at most once per `cooldown` seconds for the same level.
