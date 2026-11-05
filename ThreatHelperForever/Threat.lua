@@ -82,7 +82,11 @@ function Threat.evaluate(snap, settings)
     -- escort NPC kept taking threat), so the closer of the two wins.
     if isNumber(snap.pctLead) and snap.pctLead > 0 then
         local derived = { scaled = math.min(100, 10000 / snap.pctLead / 1.1), derived = true }
-        if not top or derived.scaled > top.scaled + 0.5 then
+        -- The best member explains the derived second when it is the same unit: equal for a
+        -- melee member, 1.3 / 1.1 times lower at range (journal 2026-11-05, 5 dungeons: 637
+        -- samples, member 20 vs derived 24 for a caster). Only a gap no member can explain
+        -- means a unit outside the group (1 point of slack for rounding).
+        if not top or derived.scaled * 1.1 / 1.3 > top.scaled + 1 then
             -- Outside the group unless a member's value is unreadable (it may be that one).
             local hidden = false
             for _, o in ipairs(type(snap.others) == "table" and snap.others or {}) do
@@ -141,8 +145,7 @@ function Threat.hold(result)
     return nil
 end
 
--- Last real hold seen on each mob (through "target" or "mouseover", where the values are
--- readable), by GUID: { [guid] = { hold, level, at } }. Plates of other mobs only get the
+-- Last real hold seen on each mob (through "target", where the values are readable), by GUID: { [guid] = { hold, level, at } }. Plates of other mobs only get the
 -- states (journal 2026-11-05), so the last number fills in for a few seconds.
 Threat.MEMORY_SECONDS = 6
 

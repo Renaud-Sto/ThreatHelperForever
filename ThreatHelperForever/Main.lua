@@ -172,7 +172,7 @@ function Main.journal(snap, result)
     ns.Log.sample(Main.log, GetTime(), sample)
 end
 
--- Keeps the last real hold of the target and of the mouseover / focus mobs (Threat.remember).
+-- Keeps the last real hold of the target and of the focus mob (Threat.remember).
 function Main.rememberHolds(snap, result)
     local now = GetTime()
     if snap.active then ns.Threat.remember(Main.known, ns.Adapter.guid("target"), result, now) end
@@ -238,7 +238,7 @@ local UPDATE_EVENTS = {
     UNIT_THREAT_LIST_UPDATE = true, UNIT_THREAT_SITUATION_UPDATE = true,
     PLAYER_TARGET_CHANGED = true, GROUP_ROSTER_UPDATE = true,
     NAME_PLATE_UNIT_ADDED = true, NAME_PLATE_UNIT_REMOVED = true,
-    UPDATE_MOUSEOVER_UNIT = true, PLAYER_FOCUS_CHANGED = true,
+    PLAYER_FOCUS_CHANGED = true,
 }
 
 function Main.onEvent(event, arg1, arg2)
@@ -412,7 +412,7 @@ for _, event in ipairs({
     "ADDON_LOADED", "ADDON_ACTION_BLOCKED", "ADDON_ACTION_FORBIDDEN", "MACRO_ACTION_BLOCKED", "MACRO_ACTION_FORBIDDEN",
     "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED", "PLAYER_TARGET_CHANGED", "GROUP_ROSTER_UPDATE",
     "UNIT_THREAT_LIST_UPDATE", "UNIT_THREAT_SITUATION_UPDATE",
-    "NAME_PLATE_UNIT_ADDED", "NAME_PLATE_UNIT_REMOVED", "UPDATE_MOUSEOVER_UNIT", "PLAYER_FOCUS_CHANGED",
+    "NAME_PLATE_UNIT_ADDED", "NAME_PLATE_UNIT_REMOVED", "PLAYER_FOCUS_CHANGED",
 }) do
     pcall(frame.RegisterEvent, frame, event)
 end

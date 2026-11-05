@@ -5,6 +5,18 @@ versions: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-05
+
+### Fixed
+- In a group, the player closest to taking your target was often shown as "not in group"
+  (two samples in three in a dungeon journal), and a caster's share was overstated. The
+  estimate from the percentage of lead now gives way to the group member it matches, melee or
+  ranged; "not in group" is kept for a gap no member explains (escort NPC, outside player).
+
+### Changed
+- Dimmed percentages come from your target only: hovering a mob gives no threat value on
+  Forever (measured), so the mouseover is no longer read.
+
 ## [1.0.2] - 2026-11-05
 
 ### Changed
@@ -52,7 +64,8 @@ First public release, tested on WoW Forever beta build 1.60.1.70450 (Interface 1
 - Clicking a row of the mob list cannot target the mob: Forever forbids addons to target
   through a nameplate.
 
-[Unreleased]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Renaud-Sto/ThreatHelperForever/releases/tag/v1.0.0

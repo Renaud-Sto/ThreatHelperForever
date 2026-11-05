@@ -124,9 +124,11 @@ function Adapter.guid(unit)
     return text((call("UnitGUID", unit)))
 end
 
--- Extra mobs read through tokens where threat values may be readable (mouseover, focus):
+-- Extra mobs read through tokens where threat values may be readable. Mouseover was tried and
+-- dropped: everything SECRET, even the state (journal 2026-11-05, 92 samples). Focus: OPEN.
+-- Extra mobs read through tokens where threat values may be readable (focus):
 -- { { unit, guid, snap }, ... }, the target excluded. Used to remember each mob's last hold.
-Adapter.EXTRA_TOKENS = { "mouseover", "focus" }
+Adapter.EXTRA_TOKENS = { "focus" }
 function Adapter.extraMobs()
     local list = {}
     if not bool(call("UnitAffectingCombat", "player")) then return list end
@@ -260,7 +262,7 @@ function Adapter.rawSample(mob, nested)
             local res = read("UnitName", mobTarget)
             sample.mobTarget = (res[1] == "MISSING" or res[1] == "ERR") and res[1] or enc(res[2], isSecret)
         end
-        -- Are the values readable through mouseover and focus, like through target? (OPEN)
+        -- Are the values readable through focus, like through target? (OPEN)
         for _, unit in ipairs(Adapter.EXTRA_TOKENS) do
             if hostileTarget(unit) and not bool(call("UnitIsUnit", unit, mob)) then
                 sample[unit] = Adapter.rawSample(unit, true)

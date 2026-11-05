@@ -108,6 +108,16 @@ H.test("a unit outside the group (escort NPC) counts even when a member has a va
     H.eq(m.level, "warn")
 end)
 
+-- Journal 2026-11-05 (dungeons): the derived second was the top member itself, read through
+-- pctLead (equal for melee, x1.18 for a caster), and was shown as "not in group".
+H.test("a member that explains the derived second stays the one shown", function()
+    local melee = T.evaluate({ active = true, status = 3, pctLead = 153, others = { member("Zaoir", 59) } })
+    H.eq(melee.top.name, "Zaoir")
+    local caster = T.evaluate({ active = true, status = 3, pctLead = 377, others = { member("Paris", 20) } })
+    H.eq(caster.top.name, "Paris")
+    H.eq(math.floor(T.hold(caster) + 0.5), 80)
+end)
+
 H.test("the derived second is 'outside the group' unless a member value is secret", function()
     H.truthy(T.evaluate({ active = true, status = 3, pctLead = 185 }).top.outside)
     H.falsy(T.evaluate({ active = true, status = 3, pctLead = 185, others = { member("Helper", nil) } }).top.outside)
