@@ -2,7 +2,7 @@ ThreatHelper Forever tells a tank, before it happens, that a mob is about to sli
 
 **Features**
 
-- **Your hold on every mob**: a discreet percentage next to the nameplate of each mob in combat with you. 100 % = the aggro is yours and nobody is close; it falls as someone closes in; 0 % = lost. One colour per state.
+- **Your hold on every mob**: next to the nameplate of each mob in combat with you, one colour per state. On your target a percentage: 100 % = the aggro is yours and nobody is close; it falls as someone closes in; 0 % = lost. On other mobs Forever hides the figures, so only the state is shown.
 - **Threat frame**: a bar drawn like Forever's nameplates, with the player closest to taking your target.
 - **Mob list**: every mob in combat with you, sorted by danger, your target outlined.
 - **Alerts** in the middle of the screen with a sound, up to "AGGRO LOST to Bob: TAUNT!" (it names the new holder, even outside your group).
@@ -20,11 +20,12 @@ ThreatHelper Forever tells a tank, before it happens, that a mob is about to sli
 
 **Compatibility**
 
-WoW Forever (Interface 16001), tested on beta build 1.60.1.70450. English and French.
+WoW Forever (Interface 16001), tested on build 1.60.1.70790. English and French.
 
 **Good to know**
 
 - On bosses the game may hide some threat values; the addon then falls back on threat states. Not yet measured on a boss.
+- A unit outside your group (escort NPC, another player) is estimated from the game's percentage of lead and shown as "not in group".
 - A row of the mob list cannot target its mob: Forever forbids addons to target through a nameplate. Click the nameplate.
 
 Source and issues: https://github.com/Renaud-Sto/ThreatHelperForever

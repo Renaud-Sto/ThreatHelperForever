@@ -9,11 +9,12 @@ the game's own.
 
 ## Features
 
-- **Your hold on every mob**: a discreet percentage next to the nameplate of each mob in combat
-  with you. 100 % = the aggro is yours and nobody is close; it falls as someone closes in;
-  0 % = lost. Colour by state (held, warning, danger, lost).
+- **Your hold on every mob**: next to the nameplate of each mob in combat with you, coloured
+  by state (held, warning, danger, lost). On your target a percentage: 100 % = the aggro is
+  yours and nobody is close; it falls as someone closes in; 0 % = lost. On other mobs Forever
+  hides the figures, so only the state is shown (and 0 % once lost).
 - **Threat frame**: a bar drawn like Forever's nameplates, with the name of the player closest
-  to taking your target.
+  to taking your target ("not in group" for an NPC or a player outside your group).
 - **Mob list**: every mob in combat with you, sorted by danger (the one you are losing on top),
   your current target outlined.
 - **Alerts** in the middle of the screen, with a sound: "Bob closing in", "DANGER", and
@@ -44,10 +45,14 @@ to the SavedVariables file).
 
 ## Compatibility and limits
 
-- WoW Forever beta, Interface 16001, build 1.60.1.70450. English and French.
+- WoW Forever, Interface 16001, build 1.60.1.70790. English and French.
 - Threat comes from the game's threat API (`UnitDetailedThreatSituation`,
   `UnitThreatPercentageOfLead`). On bosses the game may hide some values ("secret values"):
   the addon then falls back on the threat states. Not yet measured on a boss.
+- Read through a nameplate, the threat figures are secret even on ordinary mobs (measured on
+  build 70790): only your target gets a percentage, other mobs show their state.
+- The share of a unit outside your group is estimated from the percentage of lead, assuming
+  it takes aggro at 110 % (melee): with a caster the warning comes a little early.
 - Clicking a row of the list cannot target the mob: Forever forbids addons to target through
   a nameplate (checked in game). Click the nameplate itself.
 - In raids the per-mob figures skip reading every raid member, to stay light.
@@ -67,9 +72,10 @@ License: MIT (the code only; no Blizzard art is shipped).
 Suivi de menace pour tous les tanks sur WoW Forever (guerrier, paladin, druide en forme d'ours…). Il prévient
 avant que tu perdes un monstre.
 
-- **Ta prise sur chaque monstre** : un pourcentage à côté de la barre de nom de chaque monstre
-  en combat avec toi. 100 % = l'aggro est à toi, il baisse quand quelqu'un se rapproche, 0 % =
-  perdue. Une couleur par état.
+- **Ta prise sur chaque monstre** : une couleur par état à côté de la barre de nom de chaque
+  monstre en combat avec toi. Sur ta cible, un pourcentage : 100 % = l'aggro est à toi, il
+  baisse quand quelqu'un se rapproche, 0 % = perdue. Sur les autres monstres, Forever cache les
+  chiffres : seul l'état est montré.
 - **Cadre Menace**, **liste des monstres** triée par danger, **alertes** au centre de l'écran
   avec son, et **fenêtre de réglages** (bouton de minicarte ou `/aggro`) : verrou, affichages,
   alertes, seuils, couleurs, test, remise à zéro.

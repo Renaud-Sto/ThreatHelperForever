@@ -1,12 +1,12 @@
-# CurseForge submission, ThreatHelper Forever 1.0.0
+# CurseForge submission, ThreatHelper Forever 1.0.1
 
 | Item | Value | Status |
 | --- | --- | --- |
 | Name | ThreatHelper Forever | ready |
 | Summary | Threat tracker for tanks: your hold on every mob, with alerts before you lose aggro. | ready |
 | Description | `description.md` (paste as is) | ready |
-| Changelog | `changelog-1.0.0.md` | ready |
-| File | `dist/ThreatHelperForever-1.0.0.zip` (one top folder `ThreatHelperForever/`) | built locally |
+| Changelog | `changelog-1.0.1.md` | ready |
+| File | `dist/ThreatHelperForever-1.0.1.zip` (one top folder `ThreatHelperForever/`) | built locally |
 | Release type | **Beta** (the game is in beta) | to choose on upload |
 | Game version | WoW Forever / the build CurseForge offers for 1.60.1 | to choose on upload |
 | License | MIT | to choose on the form |

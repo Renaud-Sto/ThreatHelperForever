@@ -5,6 +5,22 @@ versions: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-05
+
+Tested on WoW Forever 1.60.1.70790 (launch build, Interface 16001).
+
+### Fixed
+- The nameplate and the mob list disagreed with the threat frame on the same mob (100 % on the
+  plate, 51 % on the frame) and jumped from 100 % to lost with nothing in between. Forever hides
+  threat values read through a nameplate (measured): the target's plate and row now take the
+  frame's figure, and other held mobs show their state colour without a made-up 100 %.
+- A unit outside the group taking threat (an escort NPC, a player not in your group) is now
+  counted even when group members are on the threat list, and is labelled "not in group"
+  instead of "someone".
+
+### Changed
+- The fight journal also reads the target through its nameplate and keeps member names.
+
 ## [1.0.0] - 2026-10-18
 
 First public release, tested on WoW Forever beta build 1.60.1.70450 (Interface 16001).
@@ -27,5 +43,6 @@ First public release, tested on WoW Forever beta build 1.60.1.70450 (Interface 1
 - Clicking a row of the mob list cannot target the mob: Forever forbids addons to target
   through a nameplate.
 
-[Unreleased]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Renaud-Sto/ThreatHelperForever/releases/tag/v1.0.0
