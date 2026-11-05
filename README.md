@@ -12,7 +12,8 @@ the game's own.
 - **Your hold on every mob**: next to the nameplate of each mob in combat with you, coloured
   by state (held, warning, danger, lost). On your target a percentage: 100 % = the aggro is
   yours and nobody is close; it falls as someone closes in; 0 % = lost. On other mobs Forever
-  hides the figures, so only the state is shown (and 0 % once lost).
+  hides the figures: their plate shows the live state ("OK", "!" about to go, "0%" lost), or
+  their last real percentage, dimmed, if you targeted or hovered them in the last 6 seconds.
 - **Threat frame**: a bar drawn like Forever's nameplates, with the name of the player closest
   to taking your target ("not in group" for an NPC or a player outside your group).
 - **Mob list**: every mob in combat with you, sorted by danger (the one you are losing on top),
@@ -75,7 +76,8 @@ avant que tu perdes un monstre.
 - **Ta prise sur chaque monstre** : une couleur par état à côté de la barre de nom de chaque
   monstre en combat avec toi. Sur ta cible, un pourcentage : 100 % = l'aggro est à toi, il
   baisse quand quelqu'un se rapproche, 0 % = perdue. Sur les autres monstres, Forever cache les
-  chiffres : seul l'état est montré.
+  chiffres : leur barre montre l'état en direct (« OK », « ! », « 0% »), ou leur dernier
+  vrai pourcentage, atténué, si tu les as ciblés ou survolés dans les 6 dernières secondes.
 - **Cadre Menace**, **liste des monstres** triée par danger, **alertes** au centre de l'écran
   avec son, et **fenêtre de réglages** (bouton de minicarte ou `/aggro`) : verrou, affichages,
   alertes, seuils, couleurs, test, remise à zéro.

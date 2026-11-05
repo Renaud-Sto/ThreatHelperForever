@@ -2,7 +2,7 @@ ThreatHelper Forever tells a tank, before it happens, that a mob is about to sli
 
 **Features**
 
-- **Your hold on every mob**: next to the nameplate of each mob in combat with you, one colour per state. On your target a percentage: 100 % = the aggro is yours and nobody is close; it falls as someone closes in; 0 % = lost. On other mobs Forever hides the figures, so only the state is shown.
+- **Your hold on every mob**: next to the nameplate of each mob in combat with you, one colour per state. On your target a percentage: 100 % = the aggro is yours and nobody is close; it falls as someone closes in; 0 % = lost. On other mobs Forever hides the figures: their plate shows the live state ("OK", "!" about to go, "0%" lost), or their last real percentage, dimmed, if you targeted or hovered them in the last 6 seconds. Tab through the pack to refresh them.
 - **Threat frame**: a bar drawn like Forever's nameplates, with the player closest to taking your target.
 - **Mob list**: every mob in combat with you, sorted by danger, your target outlined.
 - **Alerts** in the middle of the screen with a sound, up to "AGGRO LOST to Bob: TAUNT!" (it names the new holder, even outside your group).

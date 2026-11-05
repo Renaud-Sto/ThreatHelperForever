@@ -5,6 +5,15 @@ versions: [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-05
+
+### Changed
+- Every nameplate of a mob in combat with you shows something again, for multi-aggro: the live
+  state ("OK" held, "!" about to go, "0%" lost) and, for a mob you targeted, hovered or focused
+  in the last 6 seconds, its last real percentage, dimmed. Tab through the pack to refresh them.
+  The mob list uses the same labels. (1.0.1 left the plates of other mobs empty.)
+- The fight journal also samples the mouseover and focus mobs.
+
 ## [1.0.1] - 2026-11-05
 
 Tested on WoW Forever 1.60.1.70790 (launch build, Interface 16001).
@@ -43,6 +52,7 @@ First public release, tested on WoW Forever beta build 1.60.1.70450 (Interface 1
 - Clicking a row of the mob list cannot target the mob: Forever forbids addons to target
   through a nameplate.
 
-[Unreleased]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/Renaud-Sto/ThreatHelperForever/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/Renaud-Sto/ThreatHelperForever/releases/tag/v1.0.0

@@ -3,7 +3,7 @@
 ## Notes: Threat tracker for tanks: warns before you lose aggro.
 ## Notes-frFR: Suivi de menace pour tank : prévient avant de perdre l'aggro.
 ## Author: renaud
-## Version: 1.0.1
+## Version: 1.0.2
 ## IconTexture: Interface\AddOns\ThreatHelperForever\Media\icon
 ## AddonCompartmentFunc: ThreatHelperForever_OnCompartmentClick
 ## SavedVariables: ThreatHelperForeverDB, ThreatHelperForeverLog
