@@ -5,6 +5,9 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # Manual re-run on a tag (Actions tab or gh workflow run Release --ref vX.Y.Z), when the
+  # tag push did not start the workflow (seen 2026-11-05 with GitHub ref errors).
+  workflow_dispatch:
 
 permissions:
   contents: write
