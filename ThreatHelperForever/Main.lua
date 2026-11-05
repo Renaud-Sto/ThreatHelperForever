@@ -117,7 +117,7 @@ end
 
 function Main.alertText(result)
     local level = result.level
-    local name = result.top and result.top.name or L.SOMEONE
+    local name = result.top and ns.Threat.who(result.top, L) or L.SOMEONE
     local pct = math.floor((ns.Threat.hold(result) or 0) + 0.5)
     if level == "warn" then return string.format(L.ALERT_warn, name, pct) end
     if level == "danger" then
@@ -150,7 +150,7 @@ function Main.update()
     Main.last = result
     ns.UI.render(result, snap.looseMobs)
     Main.renderPlates(result, snap)
-    Main.renderList()
+    Main.renderList(snap.active and result or nil)
     ns.UI.frame:SetShown(Main.visible(result))
     if ns.Threat.shouldAlert(Main.alertState, result.level, GetTime()) then Main.raise(result) end
     Main.journal(snap, result)
@@ -176,8 +176,12 @@ function Main.renderPlates(result, snap)
     local entries = {}
     if s.plate and s.plateAll then
         for _, m in ipairs(ns.Adapter.plates()) do
+            -- The target is read through "target", where the values are readable; through its
+            -- plate they are secret (journal 2026-11-05), so the bar and the plate agree.
+            local useTarget = m.isTarget and snap.active
             entries[#entries + 1] = {
-                result = ns.Threat.evaluate(m.snap, s), myScaled = m.snap.me and m.snap.me.scaled, plate = m.plate,
+                result = useTarget and result or ns.Threat.evaluate(m.snap, s),
+                myScaled = (useTarget and snap.me or m.snap.me or {}).scaled, plate = m.plate,
             }
         end
     elseif s.plate then
@@ -186,11 +190,14 @@ function Main.renderPlates(result, snap)
     ns.UI.renderPlates(entries, s)
 end
 
-function Main.renderList()
+function Main.renderList(target)
     local s = Main.db.settings
     if not ns.List.frame then return end
     local rows = s.list and ns.Adapter.listRows() or {}
-    for _, row in ipairs(rows) do row.result = ns.Threat.evaluate(row.snap, s) end
+    for _, row in ipairs(rows) do
+        -- Same as the plates: the target row takes the bar's reading (readable values).
+        row.result = (row.isTarget and target) or ns.Threat.evaluate(row.snap, s)
+    end
     ns.List.render(ns.List.sort(rows), s)
 end
 
@@ -276,16 +283,16 @@ end
 -- (safe, warn, danger, lost in turn). Real updates wait until it ends.
 Main.DEMO_SECONDS = 6
 Main.DEMO_PLATES = {
-    { result = { level = "safe", top = { scaled = 42 } } },
-    { result = { level = "warn", top = { scaled = 78 } } },
-    { result = { level = "danger", top = { scaled = 93 } } },
+    { result = { level = "safe", top = { scaled = 42 }, measured = true } },
+    { result = { level = "warn", top = { scaled = 78 }, measured = true } },
+    { result = { level = "danger", top = { scaled = 93 }, measured = true } },
     { result = { level = "lost" } },
 }
 
 function Main.demo()
     local samples = {
-        { level = "warn", top = { name = "Bob", scaled = 78 } },
-        { level = "danger", top = { name = "Bob", scaled = 93 } },
+        { level = "warn", top = { name = "Bob", scaled = 78 }, measured = true },
+        { level = "danger", top = { name = "Bob", scaled = 93 }, measured = true },
         { level = "lost", holder = "Bob" },
     }
     Main.demoUntil = GetTime() + Main.DEMO_SECONDS

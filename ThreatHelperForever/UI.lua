@@ -198,7 +198,9 @@ function UI.render(result, looseMobs)
 
     -- The bar is the player's hold: full when safe, empty once lost (the border stays red).
     local hold = ns.Threat.hold(result)
-    local share = hold and hold / 100 or 0
+    -- Held but unmeasured (secret values): a full bar in the level colour, no number.
+    local held = level == "safe" or level == "warn" or level == "danger"
+    local share = hold and hold / 100 or (held and 1 or 0)
     local width = math.max(1, UI.BAR_WIDTH * share)
     UI.fill:SetWidth(width)
     if UI.fill.isAtlas then UI.fill:SetTexCoord(0, width / UI.BAR_WIDTH, 0, 1) end
@@ -211,7 +213,7 @@ function UI.render(result, looseMobs)
         UI.who:SetText(result.holder or L.SOMEONE)
         UI.pct:SetText("")
     elseif hold then
-        UI.who:SetText(result.top and (result.top.name or L.SOMEONE) or "")
+        UI.who:SetText(result.top and ns.Threat.who(result.top, L) or "")
         UI.pct:SetText(string.format("%d%%", math.floor(hold + 0.5)))
     else
         UI.who:SetText("")

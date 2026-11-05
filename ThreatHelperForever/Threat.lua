@@ -75,13 +75,28 @@ function Threat.evaluate(snap, settings)
 
     local level = "unknown"
     local top = Threat.topOther(snap.others)
-    -- No member value (solo, members off the list, or secret values): derive the second
-    -- from UnitThreatPercentageOfLead, the player's threat as a share of the second's
-    -- (measured 2026-10-17: 100 while insecure, 129, 184, 13900). The second pulls at 110 %
-    -- in melee (130 % at range): assume melee, the earlier warning.
-    if not top and isNumber(snap.pctLead) and snap.pctLead > 0 then
-        top = { scaled = math.min(100, 10000 / snap.pctLead / 1.1), derived = true }
+    -- The second derived from UnitThreatPercentageOfLead, the player's threat as a share of
+    -- the second's (measured 2026-10-17: 100 while insecure, 129, 184, 13900). The second
+    -- pulls at 110 % in melee (130 % at range): assume melee, the earlier warning. It counts
+    -- even when members have values: the second may be outside the group (2026-11-05, an
+    -- escort NPC kept taking threat), so the closer of the two wins.
+    if isNumber(snap.pctLead) and snap.pctLead > 0 then
+        local derived = { scaled = math.min(100, 10000 / snap.pctLead / 1.1), derived = true }
+        if not top or derived.scaled > top.scaled + 0.5 then
+            -- Outside the group unless a member's value is unreadable (it may be that one).
+            local hidden = false
+            for _, o in ipairs(type(snap.others) == "table" and snap.others or {}) do
+                if type(o) == "table" and not o.tanking and not isNumber(o.scaled) then hidden = true end
+            end
+            derived.outside = not hidden
+            top = derived
+        end
     end
+    -- A percentage is shown only from a real number: a member value, the derived second, or
+    -- a percentage of lead of 0 (nobody else on the list). Through a nameplate token the
+    -- values are secret and only the states are left (journal 2026-11-05, build 70790: 138
+    -- samples, scaled and pctLead SECRET on every plate, readable through "target").
+    result.measured = top ~= nil or snap.pctLead == 0
     if top then
         result.top = top
         result.margin = math.max(0, 100 - top.scaled)
@@ -105,13 +120,21 @@ function Threat.evaluate(snap, settings)
     return result
 end
 
+-- The label for the closest other: its name, "not in group" for a derived second outside
+-- the group, "someone" otherwise.
+function Threat.who(top, L)
+    if top.name then return top.name end
+    return top.outside and L.OUTSIDE or L.SOMEONE
+end
+
 -- The player's hold on the mob, the number shown everywhere (renaud 2026-10-18: "100 % =
 -- the aggro I have, 0 = the aggro I do not have"): 100 minus the closest other's share of
--- what pulls, 100 when nobody else has threat, 0 once lost; nil when there is nothing to show.
+-- what pulls, 100 when nobody else has threat, 0 once lost; nil when there is nothing to show,
+-- including a held mob whose values are secret (never a fake 100).
 function Threat.hold(result)
     local level = result and result.level
     if level == "lost" then return 0 end
-    if level == "safe" or level == "warn" or level == "danger" then
+    if (level == "safe" or level == "warn" or level == "danger") and result.measured then
         local other = result.top and result.top.scaled or 0
         return math.max(0, math.min(100, 100 - other))
     end

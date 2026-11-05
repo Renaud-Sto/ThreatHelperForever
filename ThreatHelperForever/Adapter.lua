@@ -171,7 +171,8 @@ function Adapter.plates()
         if hostileTarget(unit) and num(call("UnitThreatSituation", "player", unit)) ~= nil then
             local plate = plateFor(unit)
             if plate then
-                list[#list + 1] = { unit = unit, plate = plate, snap = Adapter.readMob(unit, withMembers) }
+                list[#list + 1] = { unit = unit, plate = plate, snap = Adapter.readMob(unit, withMembers),
+                    isTarget = bool(call("UnitIsUnit", unit, "target")) == true }
             end
         end
     end
@@ -183,10 +184,13 @@ function Adapter.targetPlate()
     return plateFor("target")
 end
 
--- Raw reads against the target for the fight journal (Log.lua): every value encoded,
--- secrets as "SECRET", missing functions as "MISSING". rawThreat is left out (it changes
--- on every hit and would fill the journal).
-function Adapter.rawSample()
+-- Raw reads against one mob token ("target" by default) for the fight journal (Log.lua):
+-- every value encoded, secrets as "SECRET", missing functions as "MISSING". rawThreat is
+-- left out (it changes on every hit and would fill the journal). For the target, the same
+-- mob is also read through its nameplate token (`plate`): the bar and the plate/list once
+-- disagreed on one mob (51 % vs 100 %, 2026-11-05), so both readings are kept side by side.
+function Adapter.rawSample(mob, nested)
+    mob = mob or "target"
     local enc = ns.Log.encode
     local function read(name, ...)
         if type(_G[name]) ~= "function" then return { "MISSING" } end
@@ -195,7 +199,7 @@ function Adapter.rawSample()
         return res
     end
     local function threatOf(unit)
-        local res = read("UnitDetailedThreatSituation", unit, "target")
+        local res = read("UnitDetailedThreatSituation", unit, mob)
         if res[1] == "MISSING" or res[1] == "ERR" then return res[1] end
         -- isSecret first: even comparing a secret with nil may raise.
         if not isSecret(res[2]) and not isSecret(res[4]) and res[2] == nil and res[4] == nil then return "none" end
@@ -208,10 +212,10 @@ function Adapter.rawSample()
         return enc(res[2], isSecret)
     end
     local sample = {
-        status = one("UnitThreatSituation", "player", "target"),
-        lead = one("UnitThreatLeadSituation", "player", "target"),
+        status = one("UnitThreatSituation", "player", mob),
+        lead = one("UnitThreatLeadSituation", "player", mob),
         pctLead = (function()
-            local res = read("UnitThreatPercentageOfLead", "player", "target")
+            local res = read("UnitThreatPercentageOfLead", "player", mob)
             if res[1] == "MISSING" or res[1] == "ERR" then return res[1] end
             return enc(res[2], isSecret, 1)
         end)(),
@@ -219,7 +223,30 @@ function Adapter.rawSample()
         members = {},
     }
     for _, unit in ipairs(Adapter.groupUnits()) do
-        if bool(call("UnitExists", unit)) then sample.members[unit] = threatOf(unit) end
+        if bool(call("UnitExists", unit)) then
+            local t = threatOf(unit)
+            if type(t) == "table" then
+                local res = read("UnitName", unit)
+                t.name = (res[1] == "MISSING" or res[1] == "ERR") and res[1] or enc(res[2], isSecret)
+            end
+            sample.members[unit] = t
+        end
+    end
+    if not nested then
+        sample.group = bool(call("IsInGroup")) or false
+        local mobTarget = mob .. "target"
+        if bool(call("UnitExists", mobTarget)) then
+            local res = read("UnitName", mobTarget)
+            sample.mobTarget = (res[1] == "MISSING" or res[1] == "ERR") and res[1] or enc(res[2], isSecret)
+        end
+        for i = 1, 40 do
+            local unit = "nameplate" .. i
+            if bool(call("UnitExists", unit)) and bool(call("UnitIsUnit", unit, mob)) then
+                sample.plate = Adapter.rawSample(unit, true)
+                sample.plate.unit = unit
+                break
+            end
+        end
     end
     return sample
 end

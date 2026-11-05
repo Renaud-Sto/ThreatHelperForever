@@ -145,13 +145,16 @@ function List.render(rows, settings)
             r.name:SetText(data.name or "?")
             r.pct:SetText(hold and string.format("%d%%", math.floor(hold + 0.5)) or "")
             r.pct:SetTextColor(1, 1, 1)         -- white over the coloured fill (green on green was unreadable)
-            local width = math.max(1, List.ROW_W * (hold or 0) / 100)
+            -- Held but unmeasured (secret values off the target): full row, no number.
+            local held = result.level == "safe" or result.level == "warn" or result.level == "danger"
+            local share = hold and hold / 100 or (held and 1 or 0)
+            local width = math.max(1, List.ROW_W * share)
             r.fill:SetWidth(width)
             if r.fill.isAtlas then r.fill:SetTexCoord(0, width / List.ROW_W, 0, 1) end
             r.fill:SetVertexColor(c[1], c[2], c[3])
-            r.fill:SetShown((hold or 0) > 0)
+            r.fill:SetShown(share > 0)
             r.border:SetShown(data.isTarget == true)
-            r.face:SetAlpha(hold and 1 or 0.5)
+            r.face:SetAlpha((hold or held) and 1 or 0.5)
             r.face:Show()
         else
             r.face:Hide()

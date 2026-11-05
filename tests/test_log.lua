@@ -75,7 +75,8 @@ H.test("in game: a fight against a boss with secret values is journaled at comba
     H.eq(s.status, 3)
     H.eq(s.lead, "MISSING")
     H.eq(s.me, { tank = true, st = 3, scaled = 100, raw = 100 })
-    H.eq(s.members.party1, { tank = "SECRET", st = "SECRET", scaled = "SECRET", raw = "SECRET" })
+    H.eq(s.members.party1, { tank = "SECRET", st = "SECRET", scaled = "SECRET", raw = "SECRET", name = "Bob" })
+    H.eq(s.group, true)
     H.eq(s.level, "safe")
     H.falsy(log.current)
 end)
@@ -90,4 +91,28 @@ H.test("/aggro log off stops new fights from being written", function()
     H.eq(#T.env.ThreatHelperForeverLog.fights, 0)
     T.env.SlashCmdList.THREATHELPERFOREVER("log on")
     H.truthy(T.env.ThreatHelperForeverLog.enabled)
+end)
+
+H.test("in game: the journal reads the target through its nameplate too", function()
+    local T = W.boot(H, {})
+    local env = T.env
+    env._G = env
+    env.UnitAffectingCombat = function(u) return u == "player" end
+    env.UnitExists = function(u) return u == "target" or u == "nameplate2" end
+    env.UnitCanAttack = function(_, u) return u == "target" or u == "nameplate2" end
+    env.UnitIsDead = function() return false end
+    env.UnitIsUnit = function(a, b) return a == b or (a == "nameplate2" and b == "target") end
+    env.IsInRaid = function() return false end
+    env.IsInGroup = function() return false end
+    env.UnitThreatSituation = function() return 3 end
+    env.UnitThreatPercentageOfLead = function(_, mob) return mob == "target" and 185 or 0 end
+    T.fire("ADDON_LOADED", H.ADDON)
+    T.env.SlashCmdList.THREATHELPERFOREVER("log on")
+    T.fire("PLAYER_REGEN_DISABLED"); T.run()
+    T.fire("UNIT_THREAT_LIST_UPDATE", "target"); T.run()
+    local s = env.ThreatHelperForeverLog.fights[1].samples[1]
+    H.eq(s.pctLead, 185)
+    H.eq(s.plate.unit, "nameplate2")
+    H.eq(s.plate.pctLead, 0)
+    H.eq(s.group, false)
 end)

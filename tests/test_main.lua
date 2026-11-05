@@ -225,6 +225,30 @@ H.test("plate all: one percentage per mob in combat with the player, each with i
     for _, p in ipairs(T.ns.UI.plates) do H.falsy(p.frame.shown) end
 end)
 
+-- Journal 2026-11-05 (build 70790): pctLead is SECRET through a nameplate, readable through
+-- "target". The target's plate takes the bar's number; another held mob shows none.
+H.test("plate all: the target's plate agrees with the bar, a secret plate shows no fake 100", function()
+    local world = { combat = true, target = true, status = 3, members = {} }
+    local T = boot(world)
+    local env = T.env
+    local SECRET = setmetatable({}, {})
+    env.issecretvalue = function(v) return v == SECRET end
+    local frames = { nameplate1 = W.frame("Frame"), nameplate2 = W.frame("Frame") }
+    env.C_NamePlate = { GetNamePlateForUnit = function(u) return frames[u] end }
+    env.UnitExists = function(u) return u == "target" or frames[u] ~= nil end
+    env.UnitCanAttack = function(_, u) return u == "target" or frames[u] ~= nil end
+    env.UnitIsUnit = function(a, b) return a == b or (a == "nameplate1" and b == "target") end
+    env.UnitThreatSituation = function() return 3 end
+    env.UnitThreatPercentageOfLead = function(_, mob) return mob == "target" and 185 or SECRET end
+    T.fire("ADDON_LOADED", H.ADDON)
+    local texts = {}
+    for _, p in ipairs(T.ns.UI.plates) do
+        if p.frame.shown then texts[#texts + 1] = rawget(p.text, "text") end
+    end
+    H.eq(texts, { "51%" })
+    H.eq(rawget(T.ns.UI.pct, "text"), "51%")
+end)
+
 H.test("/aggro test shows every level on the nameplates on screen, then gives the display back", function()
     local world = { combat = false, members = {} }
     local T = boot(world)
@@ -268,7 +292,12 @@ H.test("mob list: mobs in combat with the player, sorted by danger, packed, no s
         if mob == "target" then return world.status end
         return mobs[mob] and mobs[mob].status
     end
-    env.UnitThreatPercentageOfLead = function(_, mob) return mobs[mob] and mobs[mob].pctLead end
+    -- The target (nameplate4) is read through "target" (readable), its plate through nothing.
+    env.UnitThreatPercentageOfLead = function(_, mob)
+        if mob == "target" then return 200 end
+        if mob == "nameplate4" then return nil end
+        return mobs[mob] and mobs[mob].pctLead
+    end
     local templates = {}
     local create = env.CreateFrame
     env.CreateFrame = function(kind, name, parent, template)

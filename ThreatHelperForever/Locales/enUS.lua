@@ -16,6 +16,7 @@ ns.Locale.register("enUS", {
     ALERT_danger_nodata = "DANGER: aggro slipping!",
     ALERT_lost = "AGGRO LOST: TAUNT!",
     ALERT_lost_holder = "AGGRO LOST to %s: TAUNT!",
+    OUTSIDE = "not in group",
     SOMEONE = "someone",
     HELP = "commands: /aggro [options] | show | hide | lock | unlock | warn <pct> | danger <pct> | sound on|off | log on|off|clear | plate all|target|off|x <n>|y <n> | list on|off | minimap | test | probe | reset",
     SHOWN = "frame shown",
