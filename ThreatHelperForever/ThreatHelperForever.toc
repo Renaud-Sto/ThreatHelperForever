@@ -9,6 +9,7 @@
 ## SavedVariables: ThreatHelperForeverDB, ThreatHelperForeverLog
 ## X-Website: https://github.com/Renaud-Sto/ThreatHelperForever
 ## X-License: MIT
+## X-Curse-Project-ID: 1752116
 
 Locale.lua
 Locales/enUS.lua

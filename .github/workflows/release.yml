@@ -1,0 +1,37 @@
+# On a version tag (v1.0.1...): tests, zip, GitHub release, CurseForge upload.
+# Needs the CF_API_KEY repository secret (CurseForge API token).
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install LuaJIT and luacheck
+        run: sudo apt-get update && sudo apt-get install -y luajit lua-check
+      - name: Tests and static analysis
+        run: sh tests/check.sh
+      - name: Tag matches the TOC version
+        run: |
+          toc=$(sed -n 's/^## Version: *//p' ThreatHelperForever/ThreatHelperForever.toc | tr -d '\r')
+          test "v$toc" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME, TOC $toc"; exit 1; }
+      - name: Build the zip
+        run: python3 tools/build_zip.py
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          gh release create "$GITHUB_REF_NAME" "dist/ThreatHelperForever-$v.zip" \
+            --title "ThreatHelper Forever $v" --notes-file "docs/curseforge/changelog-$v.md"
+      - name: CurseForge upload
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+        run: python3 tools/release_curseforge.py
